@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://api.github.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; object-src blob:; connect-src 'self' https://api.github.com https://cdn.jsdelivr.net raw.githubusercontent.com;">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>MYR Secure Vault</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@zip.js/zip.js/dist/zip.min.js"></script>
+
+    <style>
+        :root {
+            --bg: #FAFAFA; --surface: #FFFFFF; --text: #2C2C2A; --text-muted: #6B6B66;
+            --accent: #D4AF37; --accent-hover: #B8962E; --border: #E8E5DE; --danger: #D9534F;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05); --radius: 12px;
+        }
+        [data-theme="dark"] {
+            --bg: #121212; --surface: #1E1E1E; --text: #F0F0F0; --text-muted: #A0A0A0;
+            --accent: #C5A028; --accent-hover: #D4AF37; --border: #333333;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); transition: 0.3s; line-height: 1.6; -webkit-tap-highlight-color: transparent; }
+        
+        header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 2rem; border-bottom: 1px solid var(--border); background: var(--surface); }
+        .logo { font-size: 1.5rem; font-weight: 700; letter-spacing: 1px; color: var(--accent); }
+        button { cursor: pointer; border: none; font-family: inherit; transition: 0.2s; }
+        #theme-toggle { background: none; font-size: 1.5rem; }
+        
+        main { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+        .view { display: none; opacity: 0; transition: opacity 0.3s ease; }
+        .view.active { display: block; opacity: 1; }
+        .hidden { display: none !important; }
+        
+        h1, h2, h3 { font-weight: 600; margin-bottom: 0.5rem; }
+        .subtitle { color: var(--text-muted); margin-bottom: 2rem; font-size: 0.9rem; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow); transition: transform 0.2s; }
+        #zip-list .card { cursor: pointer; }
+        #zip-list .card:hover { transform: translateY(-3px); border-color: var(--accent); }
+        .card-title { font-size: 1.1rem; word-break: break-all; }
+        .card-meta { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; }
+        
+        .detail-card { max-width: 500px; margin: 0 auto; text-align: center; }
+        .meta-data { text-align: left; margin: 1.5rem 0; background: var(--bg); padding: 1rem; border-radius: 8px; font-size: 0.9rem;}
+        
+        .primary-btn, .danger-btn, .secondary-btn { padding: 0.85rem 1.5rem; border-radius: 8px; font-weight: 600; width: 100%; margin-top: 1rem; }
+        .primary-btn { background: var(--accent); color: #fff; }
+        .primary-btn:hover { background: var(--accent-hover); }
+        .danger-btn { background: var(--danger); color: #fff; margin-top: 0; width: auto; font-size: 0.9rem;}
+        .secondary-btn { background: transparent; border: 1px solid var(--border); color: var(--text); }
+        .back-btn { background: none; color: var(--text-muted); margin-bottom: 1rem; font-weight: 600; font-size: 1rem; }
+        
+        input[type="password"], input[type="text"] { width: 100%; padding: 0.85rem; margin-top: 1rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); outline: none; }
+        input:focus { border-color: var(--accent); }
+        .error-text { color: var(--danger); font-size: 0.9rem; margin-top: 0.5rem; }
+        
+        /* Secure Vault UI */
+        #timer-bar { position: sticky; top: 0; background: var(--surface); border-bottom: 1px solid var(--border); padding: 0.8rem 1.5rem; display: flex; justify-content: space-between; align-items: center; z-index: 100; font-weight: bold; color: var(--accent); box-shadow: var(--shadow); }
+        #countdown { font-variant-numeric: tabular-nums; font-size: 1.2rem; }
+        
+        .vault-toolbar { margin-bottom: 1.5rem; }
+        .file-card { display: flex; align-items: center; padding: 1rem; justify-content: space-between; }
+        .file-info { display: flex; align-items: center; gap: 0.8rem; overflow: hidden; }
+        .file-icon { font-size: 1.5rem; }
+        .file-name { font-weight: 500; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
+        .file-actions { display: flex; gap: 0.4rem; }
+        .icon-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 0.4rem; font-size: 0.9rem; }
+        .icon-btn:hover { background: var(--border); }
+        
+        /* Modals */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 1rem; backdrop-filter: blur(4px); }
+        .modal-content { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 800px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .small-modal { max-width: 400px; padding: 1.5rem; text-align: center; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); }
+        .close-btn { font-size: 1.5rem; background: none; color: var(--text-muted); }
+        #preview-body { padding: 1.5rem; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; align-items: center; }
+        #preview-body img, #preview-body video { max-width: 100%; border-radius: 8px; }
+        #preview-body pre { width: 100%; background: var(--bg); padding: 1rem; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; font-family: monospace; font-size: 0.85rem; }
+        .csv-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        .csv-table th, .csv-table td { border: 1px solid var(--border); padding: 0.5rem; text-align: left; }
+        .modal-actions { display: flex; gap: 1rem; margin-top: 1.5rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">MYR Vault</div>
+        <button id="theme-toggle" aria-label="Toggle Dark Mode">🌓</button>
+    </header>
+
+    <div id="timer-bar" class="hidden">
+        <div>Session ends in: <span id="countdown">05:00</span></div>
+        <button id="close-vault-btn" class="danger-btn">Lock</button>
+    </div>
+
+    <main>
+        <section id="view-home" class="view active">
+            <div class="header-flex">
+                <h1>Encrypted Archives</h1>
+                <p class="subtitle" id="repo-status">Connecting to GitHub API to locate /zips/ directory...</p>
+            </div>
+            <div id="zip-list" class="grid"></div>
+        </section>
+
+        <section id="view-details" class="view hidden">
+            <button class="back-btn" onclick="app.showHome()">← Back</button>
+            <div class="card detail-card">
+                <h2 id="detail-title"></h2>
+                <div class="meta-data">
+                    <p><strong>File:</strong> <span id="detail-filename"></span></p>
+                    <p><strong>Size:</strong> <span id="detail-size"></span></p>
+                    <p><strong>SHA:</strong> <span id="detail-sha" style="font-family: monospace; font-size: 0.75rem;"></span></p>
+                </div>
+                <button id="download-unlock-btn" class="primary-btn">Download & Unlock</button>
+                <div id="download-progress" class="hidden error-text" style="color: var(--text-muted); margin-top: 1rem;">Loading securely into memory...</div>
+            </div>
+        </section>
+
+        <section id="view-password" class="view hidden">
+            <div class="card detail-card centered">
+                <h2>Unlock Archive</h2>
+                <p class="subtitle">Enter AES-256 password for client-side decryption.</p>
+                <input type="password" id="vault-password" placeholder="Password" autocomplete="off">
+                <p id="password-error" class="error-text hidden"></p>
+                <button id="unlock-btn" class="primary-btn">Decrypt</button>
+            </div>
+        </section>
+
+        <section id="view-vault" class="view hidden">
+            <div class="vault-toolbar">
+                <input type="text" id="vault-search" placeholder="Search decrypted files..." autocomplete="off">
+            </div>
+            <div id="vault-contents" class="grid vault-grid"></div>
+        </section>
+    </main>
+
+    <div id="preview-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="preview-title" style="font-size: 1.1rem; max-width: 80%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Preview</h3>
+                <button id="close-preview" class="close-btn">×</button>
+            </div>
+            <div id="preview-body"></div>
+        </div>
+    </div>
+
+    <div id="warning-modal" class="modal hidden">
+        <div class="modal-content small-modal">
+            <h3>Lock Vault?</h3>
+            <p style="margin: 1rem 0; font-size: 0.9rem; color: var(--text-muted);">This instantly wipes all decrypted data from device memory and revokes secure blobs.</p>
+            <div class="modal-actions">
+                <button id="cancel-close" class="secondary-btn">Cancel</button>
+                <button id="confirm-close" class="danger-btn" style="width: 100%;">Wipe & Lock</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    /** * CONFIGURATION
+     * Replace 'your-username/your-repo-name' with your actual GitHub repository.
+     * The app will automatically read the '/zips' folder via the GitHub API.
+     */
+    const CONFIG = {
+        GITHUB_REPO: 'your-username/your-repo-name', 
+        ZIPS_FOLDER_PATH: 'zips'
+    };
+
+    const app = (() => {
+        let manifest = [];
+        let activeZip = null;
+        let encryptedBlob = null;
+        let decryptedFiles = []; 
+        let sessionTimer = null;
+        
+        let lockoutEnd = parseInt(localStorage.getItem('vault_lock') || '0', 10);
+        let failedAttempts = parseInt(localStorage.getItem('vault_tries') || '0', 10);
+        let lockoutDuration = parseInt(localStorage.getItem('vault_dur') || '30', 10);
+
+        const views = {
+            home: document.getElementById('view-home'),
+            details: document.getElementById('view-details'),
+            password: document.getElementById('view-password'),
+            vault: document.getElementById('view-vault')
+        };
+
+        const init = async () => {
+            initTheme();
+            bindEvents();
+            await fetchGitHubDirectory();
+            showView('home');
+        };
+
+        const initTheme = () => {
+            if (localStorage.getItem('theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+            document.getElementById('theme-toggle').addEventListener('click', () => {
+                const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', next);
+                localStorage.setItem('theme', next);
+            });
+        };
+
+        const bindEvents = () => {
+            document.getElementById('download-unlock-btn').addEventListener('click', loadBlobToMemory);
+            document.getElementById('unlock-btn').addEventListener('click', attemptUnlock);
+            document.getElementById('vault-password').addEventListener('keypress', (e) => { if(e.key === 'Enter') attemptUnlock(); });
+            document.getElementById('vault-search').addEventListener('input', (e) => renderVault(decryptedFiles.filter(f => f.name.toLowerCase().includes(e.target.value.toLowerCase()))));
+            document.getElementById('close-vault-btn').addEventListener('click', () => document.getElementById('warning-modal').classList.remove('hidden'));
+            document.getElementById('cancel-close').addEventListener('click', () => document.getElementById('warning-modal').classList.add('hidden'));
+            document.getElementById('confirm-close').addEventListener('click', forceWipeMemory);
+            document.getElementById('close-preview').addEventListener('click', () => {
+                document.getElementById('preview-modal').classList.add('hidden');
+                document.getElementById('preview-body').innerHTML = ''; // clear instantly
+            });
+            document.addEventListener('contextmenu', (e) => { if(!views.vault.classList.contains('hidden')) e.preventDefault(); });
+        };
+
+        const showView = (v) => {
+            Object.values(views).forEach(el => el.classList.replace('active', 'hidden'));
+            views[v].classList.replace('hidden', 'active');
+            document.getElementById('vault-password').value = '';
+            document.getElementById('password-error').classList.add('hidden');
+        };
+
+        const formatBytes = (bytes) => {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024, sizes = ['Bytes', 'KB', 'MB', 'GB'], i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        };
+
+        // Automatic API Fetching - No manual manifest needed!
+        const fetchGitHubDirectory = async () => {
+            const statusEl = document.getElementById('repo-status');
+            if (CONFIG.GITHUB_REPO === 'your-username/your-repo-name') {
+                statusEl.innerHTML = `<span style="color:var(--danger)">Setup Required: Update CONFIG.GITHUB_REPO in the HTML file.</span>`;
+                return;
+            }
+
+            try {
+                const url = `https://api.github.com/repos/${CONFIG.GITHUB_REPO}/contents/${CONFIG.ZIPS_FOLDER_PATH}`;
+                const res = await fetch(url);
+                if (!res.ok) throw new Error("Folder not found or API rate limit exceeded.");
+                const data = await res.json();
+                
+                // Filter only .zip files
+                manifest = data.filter(item => item.name.endsWith('.zip')).map(item => ({
+                    id: item.sha,
+                    filename: item.name,
+                    title: item.name.replace('.zip', '').replace(/[-_]/g, ' ').toUpperCase(),
+                    size: formatBytes(item.size),
+                    downloadUrl: item.download_url // Raw github content URL
+                }));
+
+                statusEl.innerText = `${manifest.length} secure archives found.`;
+                renderHome();
+            } catch (e) {
+                statusEl.innerHTML = `<span style="color:var(--danger)">Error: ${e.message}</span>`;
+            }
+        };
+
+        const renderHome = () => {
+            document.getElementById('zip-list').innerHTML = manifest.map(item => `
+                <div class="card" onclick="app.showDetails('${item.id}')">
+                    <h3 class="card-title">🔒 ${item.title}</h3>
+                    <div class="card-meta">📦 ${item.size}</div>
+                </div>
+            `).join('');
+        };
+
+        const showDetails = (id) => {
+            activeZip = manifest.find(i => i.id === id);
+            document.getElementById('detail-title').innerText = activeZip.title;
+            document.getElementById('detail-filename').innerText = activeZip.filename;
+            document.getElementById('detail-size').innerText = activeZip.size;
+            document.getElementById('detail-sha').innerText = activeZip.id.substring(0, 12) + '...';
+            document.getElementById('download-progress').classList.add('hidden');
+            document.getElementById('download-unlock-btn').classList.remove('hidden');
+            showView('details');
+        };
+
+        const loadBlobToMemory = async () => {
+            const btn = document.getElementById('download-unlock-btn');
+            const prog = document.getElementById('download-progress');
+            btn.classList.add('hidden'); prog.classList.remove('hidden'); prog.innerText = "Loading securely into memory...";
+
+            try {
+                // Fetch directly from raw github content or local fallback
+                const fetchUrl = activeZip.downloadUrl || `${CONFIG.ZIPS_FOLDER_PATH}/${activeZip.filename}`;
+                const res = await fetch(fetchUrl);
+                if (!res.ok) throw new Error("Failed to fetch file.");
+                encryptedBlob = await res.blob();
+                enforceLockoutRules();
+            } catch (e) {
+                prog.innerText = "Network Error loading archive.";
+                setTimeout(() => { btn.classList.remove('hidden'); prog.classList.add('hidden'); }, 3000);
+            }
+        };
+
+        const enforceLockoutRules = () => {
+            const now = Date.now();
+            if (now < lockoutEnd) {
+                const left = Math.ceil((lockoutEnd - now) / 1000);
+                showPwdError(`Vault locked. Retry in ${left}s.`);
+                showView('password');
+                document.getElementById('unlock-btn').disabled = true;
+                setTimeout(enforceLockoutRules, 1000);
+            } else {
+                document.getElementById('unlock-btn').disabled = false;
+                showView('password');
+            }
+        };
+
+        const showPwdError = (msg) => {
+            const err = document.getElementById('password-error');
+            err.innerText = msg; err.classList.remove('hidden');
+        };
+
+        const attemptUnlock = async () => {
+            if (Date.now() < lockoutEnd) return;
+            const pwdInput = document.getElementById('vault-password');
+            if (!pwdInput.value) return;
+
+            const btn = document.getElementById('unlock-btn');
+            btn.innerText = "Decrypting..."; btn.disabled = true;
+
+            try {
+                const zipReader = new zip.ZipReader(new zip.BlobReader(encryptedBlob), { password: pwdInput.value });
+                const entries = await zipReader.getEntries();
+                if (!entries.length) throw new Error("Empty archive");
+
+                // Test decrypt on first file to verify password
+                const testFile = entries.find(e => !e.directory);
+                if(testFile) await testFile.getData(new zip.Uint8ArrayWriter(), { length: 1 });
+
+                // Reset security counters
+                failedAttempts = 0; lockoutDuration = 30;
+                localStorage.setItem('vault_tries', '0'); localStorage.setItem('vault_dur', '30');
+                
+                await processToMemory(entries);
+                pwdInput.value = ''; // Wipe variable
+                initSecureTimer();
+            } catch (e) {
+                failedAttempts++;
+                localStorage.setItem('vault_tries', failedAttempts.toString());
+                if (failedAttempts >= 5) {
+                    lockoutEnd = Date.now() + (lockoutDuration * 1000);
+                    localStorage.setItem('vault_lock', lockoutEnd.toString());
+                    lockoutDuration *= 2; localStorage.setItem('vault_dur', lockoutDuration.toString());
+                    enforceLockoutRules();
+                } else {
+                    showPwdError(`Incorrect password. ${5 - failedAttempts} attempts remaining.`);
+                }
+            } finally {
+                btn.innerText = "Decrypt"; btn.disabled = false;
+            }
+        };
+
+        const processToMemory = async (entries) => {
+            decryptedFiles = [];
+            for (const entry of entries) {
+                if (entry.directory) continue;
+                const safeName = entry.filename.split('/').pop().replace(/[^a-zA-Z0-9.\-_ ()]/g, '');
+                if(!safeName) continue;
+                
+                const blob = await entry.getData(new zip.BlobWriter());
+                decryptedFiles.push({
+                    name: safeName, ext: safeName.split('.').pop().toLowerCase(),
+                    url: URL.createObjectURL(blob), rawBlob: blob
+                });
+            }
+            decryptedFiles.sort((a, b) => a.ext.localeCompare(b.ext) || a.name.localeCompare(b.name));
+            renderVault(decryptedFiles);
+            showView('vault');
+        };
+
+        const getIcon = (ext) => {
+            const i = { pdf:'📄', txt:'📝', md:'📝', csv:'📊', json:'⚙️', jpg:'🖼️', png:'🖼️', mp4:'🎥', mp3:'🎵', zip:'📦', db:'🗄️' };
+            return i[ext] || '📄';
+        };
+
+        const renderVault = (files) => {
+            document.getElementById('vault-contents').innerHTML = files.map((f, idx) => `
+                <div class="card file-card">
+                    <div class="file-info">
+                        <span class="file-icon">${getIcon(f.ext)}</span>
+                        <span class="file-name" title="${f.name}">${f.name}</span>
+                    </div>
+                    <div class="file-actions">
+                        <button class="icon-btn" onclick="app.preview(${idx})">👁️</button>
+                        <button class="icon-btn" onclick="app.save(${idx})">💾</button>
+                    </div>
+                </div>
+            `).join('');
+        };
+
+        const preview = async (idx) => {
+            const file = decryptedFiles[idx];
+            const body = document.getElementById('preview-body');
+            document.getElementById('preview-title').innerText = file.name;
+            body.innerHTML = 'Loading...';
+            document.getElementById('preview-modal').classList.remove('hidden');
+
+            try {
+                if (['jpg','jpeg','png','gif','webp','svg'].includes(file.ext)) body.innerHTML = `<img src="${file.url}">`;
+                else if (['mp4','webm'].includes(file.ext)) body.innerHTML = `<video src="${file.url}" controls autoplay style="width:100%"></video>`;
+                else if (['mp3','wav'].includes(file.ext)) body.innerHTML = `<audio src="${file.url}" controls autoplay></audio>`;
+                else if (file.ext === 'pdf') body.innerHTML = `<iframe src="${file.url}" width="100%" height="500px" style="border:none;"></iframe>`;
+                else if (['txt','md','json','xml','csv'].includes(file.ext)) {
+                    const text = await file.rawBlob.text();
+                    if (file.ext === 'json') { try { body.innerHTML = `<pre>${JSON.stringify(JSON.parse(text), null, 2)}</pre>`; } catch { body.innerHTML = `<pre>${text}</pre>`; } }
+                    else if (file.ext === 'csv') {
+                        body.innerHTML = '<table class="csv-table">' + text.split('\n').map((row, i) => {
+                            if(!row.trim()) return '';
+                            return '<tr>' + row.split(',').map(c => i===0 ? `<th>${c}</th>` : `<td>${c}</td>`).join('') + '</tr>';
+                        }).join('') + '</table>';
+                    } else body.innerHTML = `<pre>${text}</pre>`;
+                } else if (['db', 'sqlite'].includes(file.ext)) {
+                    const view = new Uint8Array(await file.rawBlob.arrayBuffer());
+                    let extract = "", curr = "";
+                    for(let i=0; i < Math.min(view.length, 50000); i++) {
+                        if(view[i] >= 32 && view[i] <= 126) curr += String.fromCharCode(view[i]);
+                        else { if(curr.length > 4) extract += curr + "\n"; curr = ""; }
+                    }
+                    body.innerHTML = `<div><p style="color:var(--text-muted);margin-bottom:1rem;"><i>Binary SQLite. Raw string extraction (first 50KB):</i></p><pre>${extract || "No strings found."}</pre></div>`;
+                } else body.innerHTML = `<p>No browser preview available. Save file to view.</p>`;
+            } catch (e) { body.innerHTML = `<p class="error-text">Preview error: ${e.message}</p>`; }
+        };
+
+        const save = (idx) => {
+            const a = document.createElement('a');
+            a.href = decryptedFiles[idx].url; a.download = decryptedFiles[idx].name;
+            a.click();
+        };
+
+        const initSecureTimer = () => {
+            document.getElementById('timer-bar').classList.remove('hidden');
+            let time = 300; // 5 min
+            const update = () => {
+                document.getElementById('countdown').innerText = `${Math.floor(time/60).toString().padStart(2,'0')}:${(time%60).toString().padStart(2,'0')}`;
+            };
+            update();
+            sessionTimer = setInterval(() => { time--; update(); if(time <= 0) forceWipeMemory(); }, 1000);
+        };
+
+        const forceWipeMemory = () => {
+            clearInterval(sessionTimer);
+            document.getElementById('timer-bar').classList.add('hidden');
+            document.getElementById('warning-modal').classList.add('hidden');
+            
+            // Critical: Revoke Object URLs to trigger browser Garbage Collection
+            decryptedFiles.forEach(f => URL.revokeObjectURL(f.url));
+            decryptedFiles = []; encryptedBlob = null; activeZip = null;
+            
+            document.getElementById('vault-contents').innerHTML = '';
+            document.getElementById('vault-search').value = '';
+            document.getElementById('preview-modal').classList.add('hidden');
+            document.getElementById('preview-body').innerHTML = '';
+            showView('home');
+        };
+
+        return { init, showHome: () => showView('home'), showDetails, preview, save };
+    })();
+
+    document.addEventListener('DOMContentLoaded', app.init);
+    </script>
+</body>
+</html>
