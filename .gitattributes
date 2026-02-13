@@ -1,0 +1,9 @@
+# Ignore the heavy secure archives so they don't dominate the stats
+zips/* linguist-vendored
+*.zip linguist-vendored
+
+# Force GitHub to detect our backend engine languages
+sys_modules/*.cpp linguist-detectable=true
+sys_modules/*.rs linguist-detectable=true
+sys_modules/*.py linguist-detectable=true
+sys_modules/*.go linguist-detectable=true
