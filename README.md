@@ -38,7 +38,7 @@ If you appreciate privacy-first engineering, you should also explore this free p
 
 <div align="center">
   <a href="https://www.unskyit.com" target="_blank">
-    <img src="unskyit-bannr.png" alt="UnskyIT Privacy Tools" width="100%" style="max-width: 600px; border-radius: 12px;">
+    <img src="unskyit-banner.png" alt="UnskyIT Privacy Tools" width="100%" style="max-width: 600px; border-radius: 12px;">
   </a>
   <br><br>
   <b>👉 <a href="https://www.unskyit.com">Visit www.unskyit.com</a></b>
