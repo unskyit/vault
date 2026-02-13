@@ -34,8 +34,10 @@ The vault relies on a strict separation of concerns, utilizing specialized modul
 
 ## 🌐 Also from MYR: UnskyIT
 
-If you appreciate privacy-first engineering, you should also explore this free privacy tool made by MYR:
+If you appreciate privacy-first engineering, you should also explore this free privacy tool made by MYR. UnskyIT is dedicated to providing robust, offline-capable, and privacy-respecting tools directly to users without the need for intrusive tracking or server-side processing. Experience seamless, secure utilities built with the same ethos as the MYR Vault.
 
-### 👉 [www.unskyit.com](https://www.unskyit.com)
+<a href="https://www.unskyit.com" target="_blank">
+  <img src="https://api.microlink.io/?url=https://www.unskyit.com&screenshot=true&embed=image" alt="UnskyIT Preview" width="600" style="border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+</a>
 
-UnskyIT is dedicated to providing robust, offline-capable, and privacy-respecting tools directly to users without the need for intrusive tracking or server-side processing. Experience seamless, secure utilities built with the same ethos as the MYR Vault.
+### 👉 [Visit www.unskyit.com](https://www.unskyit.com)
