@@ -13,11 +13,11 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
         :root {
-            --bg: #F9F8F6; /* Soft beige */
-            --surface: #FFFFFF; /* Warm white */
+            --bg: #F9F8F6;
+            --surface: #FFFFFF;
             --text: #2D2C2A;
             --text-muted: #7A7873;
-            --accent: #D4AF37; /* Muted Gold */
+            --accent: #D4AF37;
             --accent-hover: #C5A028;
             --border: #EAE6DF;
             --danger: #E06666;
@@ -53,6 +53,8 @@
         #theme-toggle:hover { background: var(--text); color: var(--bg); }
         
         main { width: 100%; max-width: 900px; margin: 2rem auto; padding: 0 1.5rem; flex: 1; }
+        
+        /* Fixed View Logic: .view handles hiding, .active handles showing. No !important conflicts. */
         .view { display: none; opacity: 0; animation: fadeIn 0.4s forwards; }
         .view.active { display: block; }
         .hidden { display: none !important; }
@@ -160,7 +162,7 @@
             <div id="zip-list" class="grid"></div>
         </section>
 
-        <section id="view-details" class="view hidden">
+        <section id="view-details" class="view">
             <button class="back-btn" onclick="app.showHome()">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back
             </button>
@@ -182,7 +184,7 @@
             </div>
         </section>
 
-        <section id="view-password" class="view hidden">
+        <section id="view-password" class="view">
             <div class="card detail-card">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent); margin-bottom: 1rem;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                 <h2>Unlock Archive</h2>
@@ -199,7 +201,7 @@
             </div>
         </section>
 
-        <section id="view-vault" class="view hidden">
+        <section id="view-vault" class="view">
             <div class="vault-toolbar">
                 <input type="text" id="vault-search" placeholder="Search decrypted files..." autocomplete="off">
             </div>
@@ -235,7 +237,6 @@
         ZIPS_FOLDER_PATH: 'zips'
     };
 
-    // CRITICAL: Disable WebWorkers for zip.js to prevent single-file/CDN CSP hanging issues
     zip.configure({ useWebWorkers: false });
 
     const app = (() => {
@@ -244,19 +245,21 @@
         let encryptedBlob = null;
         let decryptedFiles = []; 
         let sessionTimer = null;
+        let views = {}; // Initialized in init() to guarantee DOM is ready
         
         let lockoutEnd = parseInt(localStorage.getItem('vault_lock') || '0', 10);
         let failedAttempts = parseInt(localStorage.getItem('vault_tries') || '0', 10);
         let lockoutDuration = parseInt(localStorage.getItem('vault_dur') || '30', 10);
 
-        const views = {
-            home: document.getElementById('view-home'),
-            details: document.getElementById('view-details'),
-            password: document.getElementById('view-password'),
-            vault: document.getElementById('view-vault')
-        };
-
         const init = async () => {
+            // Safe DOM extraction
+            views = {
+                home: document.getElementById('view-home'),
+                details: document.getElementById('view-details'),
+                password: document.getElementById('view-password'),
+                vault: document.getElementById('view-vault')
+            };
+
             initTheme();
             bindEvents();
             await fetchGitHubDirectory();
@@ -277,7 +280,6 @@
             document.getElementById('vault-password').addEventListener('keypress', (e) => { if(e.key === 'Enter') attemptUnlock(); });
             document.getElementById('vault-search').addEventListener('input', (e) => renderVault(decryptedFiles.filter(f => f.name.toLowerCase().includes(e.target.value.toLowerCase()))));
             
-            // Modal controls
             const warnModal = document.getElementById('warning-modal');
             const prevModal = document.getElementById('preview-modal');
             
@@ -287,7 +289,7 @@
             
             document.getElementById('close-preview').addEventListener('click', () => {
                 prevModal.classList.remove('active');
-                setTimeout(() => document.getElementById('preview-body').innerHTML = '', 300); // Clear after animation
+                setTimeout(() => document.getElementById('preview-body').innerHTML = '', 300);
             });
 
             document.addEventListener('contextmenu', (e) => { if(views.vault.classList.contains('active')) e.preventDefault(); });
@@ -296,8 +298,11 @@
         const showView = (v) => {
             Object.values(views).forEach(el => el.classList.remove('active'));
             views[v].classList.add('active');
-            document.getElementById('vault-password').value = '';
-            document.getElementById('password-error').classList.add('hidden');
+            
+            const pwdInput = document.getElementById('vault-password');
+            const pwdError = document.getElementById('password-error');
+            if (pwdInput) pwdInput.value = '';
+            if (pwdError) pwdError.classList.add('hidden');
         };
 
         const formatBytes = (bytes) => {
@@ -311,7 +316,10 @@
             try {
                 const url = `https://api.github.com/repos/${CONFIG.GITHUB_REPO}/contents/${CONFIG.ZIPS_FOLDER_PATH}`;
                 const res = await fetch(url);
+                
+                if (res.status === 403) throw new Error("GitHub API rate limit exceeded. Try again later.");
                 if (!res.ok) throw new Error("Folder not found. Ensure repository and folder exist.");
+                
                 const data = await res.json();
                 
                 manifest = data.filter(item => item.name.endsWith('.zip')).map(item => ({
@@ -343,7 +351,6 @@
             document.getElementById('detail-size').innerText = activeZip.size;
             document.getElementById('detail-sha').innerText = activeZip.id.substring(0, 12) + '...';
             
-            // Reset UI
             document.getElementById('download-unlock-btn').classList.remove('hidden');
             document.getElementById('download-progress-container').classList.add('hidden');
             document.getElementById('dl-prog-wrap').classList.remove('indeterminate');
@@ -397,7 +404,7 @@
                 wrap.classList.remove('indeterminate');
                 
                 encryptedBlob = new Blob(chunks);
-                setTimeout(enforceLockoutRules, 600); // Slight delay for UX
+                setTimeout(enforceLockoutRules, 600); 
 
             } catch (e) {
                 progText.innerText = "Error loading archive.";
@@ -444,12 +451,10 @@
             progText.innerText = "Verifying AES-256 key...";
 
             try {
-                // Initialize ZipReader with password
                 const zipReader = new zip.ZipReader(new zip.BlobReader(encryptedBlob), { password: pwd });
                 const entries = await zipReader.getEntries();
                 if (!entries.length) throw new Error("Archive is empty.");
 
-                // Validate password by extracting a tiny chunk of the first file
                 const testFile = entries.find(e => !e.directory);
                 if (testFile) {
                     try {
@@ -459,14 +464,13 @@
                     }
                 }
 
-                // Password Correct
                 failedAttempts = 0; lockoutDuration = 30;
                 localStorage.setItem('vault_tries', '0'); localStorage.setItem('vault_dur', '30');
                 
                 progText.innerText = "Key verified. Extracting contents to memory...";
                 await processToMemory(entries, progBar, progText);
                 
-                pwdInput.value = ''; // Wipe variable
+                pwdInput.value = ''; 
                 initSecureTimer();
 
             } catch (e) {
@@ -496,10 +500,8 @@
                 const safeName = entry.filename.split('/').pop().replace(/[^a-zA-Z0-9.\-_ ()]/g, '');
                 if (!safeName) continue;
                 
-                // Extract individual file with progress callback
                 const blob = await entry.getData(new zip.BlobWriter(), {
                     onprogress: (index, max) => {
-                        // Calculate overall progress across multiple files
                         const fileProgress = index / max;
                         const overallProgress = ((currentFile + fileProgress) / totalFiles) * 100;
                         progBar.style.width = `${Math.min(overallProgress, 100)}%`;
@@ -519,7 +521,6 @@
             decryptedFiles.sort((a, b) => a.ext.localeCompare(b.ext) || a.name.localeCompare(b.name));
             renderVault(decryptedFiles);
             
-            // Cleanup UI states
             setTimeout(() => {
                 showView('vault');
                 document.getElementById('unlock-btn').classList.remove('hidden');
@@ -588,7 +589,7 @@
 
         const initSecureTimer = () => {
             document.getElementById('timer-bar').classList.remove('hidden');
-            let time = 300; // 5 min
+            let time = 300; 
             const update = () => {
                 document.getElementById('countdown').innerText = `${Math.floor(time/60).toString().padStart(2,'0')}:${(time%60).toString().padStart(2,'0')}`;
             };
@@ -601,7 +602,6 @@
             document.getElementById('timer-bar').classList.add('hidden');
             document.getElementById('warning-modal').classList.remove('active');
             
-            // Revoke Object URLs to force Garbage Collection
             decryptedFiles.forEach(f => URL.revokeObjectURL(f.url));
             decryptedFiles = []; encryptedBlob = null; activeZip = null;
             
