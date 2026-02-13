@@ -36,8 +36,10 @@ The vault relies on a strict separation of concerns, utilizing specialized modul
 
 If you appreciate privacy-first engineering, you should also explore this free privacy tool made by MYR. UnskyIT is dedicated to providing robust, offline-capable, and privacy-respecting tools directly to users without the need for intrusive tracking or server-side processing. Experience seamless, secure utilities built with the same ethos as the MYR Vault.
 
-<a href="https://www.unskyit.com" target="_blank">
-  <img src="https://api.microlink.io/?url=https://www.unskyit.com&screenshot=true&embed=image" alt="UnskyIT Preview" width="600" style="border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-</a>
-
-### 👉 [Visit www.unskyit.com](https://www.unskyit.com)
+<div align="center">
+  <a href="https://www.unskyit.com" target="_blank">
+    <img src="unskyit-banner.png" alt="UnskyIT Privacy Tools" width="100%" style="max-width: 600px; border-radius: 12px;">
+  </a>
+  <br><br>
+  <b>👉 <a href="https://www.unskyit.com">Visit www.unskyit.com</a></b>
+</div>
