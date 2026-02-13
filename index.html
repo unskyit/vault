@@ -13,17 +13,18 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
         :root {
+            /* Optimized Light Mode Contrast */
             --bg: #F9F8F6;
             --surface: #FFFFFF;
-            --text: #2D2C2A;
-            --text-muted: #7A7873;
-            --accent: #D4AF37;
-            --accent-hover: #C5A028;
-            --border: #EAE6DF;
-            --danger: #E06666;
-            --success: #6E9C7B;
-            --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.03);
-            --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.08);
+            --text: #1A1A1A; 
+            --text-muted: #595753; 
+            --accent: #B8962E; 
+            --accent-hover: #9E8127;
+            --border: #DCD7CE; 
+            --danger: #D9534F;
+            --success: #5CB85C;
+            --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.04);
+            --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.1);
             --radius: 16px;
             --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
@@ -43,7 +44,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: var(--font); background: var(--bg); background-image: radial-gradient(var(--border) 1px, transparent 1px); background-size: 24px 24px; color: var(--text); transition: background 0.4s ease, color 0.4s ease; line-height: 1.6; -webkit-tap-highlight-color: transparent; min-height: 100vh; display: flex; flex-direction: column; }
         
-        header { display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 5%; background: rgba(var(--surface), 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 5%; background: rgba(var(--surface), 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; }
         .logo { font-size: 1.4rem; font-weight: 700; letter-spacing: 0.5px; color: var(--text); display: flex; align-items: center; gap: 8px;}
         .logo span { color: var(--accent); }
         
@@ -85,8 +86,8 @@
         .meta-data p:last-child { margin-bottom: 0; }
         
         .primary-btn, .danger-btn, .secondary-btn { padding: 0.9rem 1.5rem; border-radius: 10px; font-weight: 600; width: 100%; font-size: 1rem; }
-        .primary-btn { background: var(--accent); color: #fff; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3); }
-        .primary-btn:hover:not(:disabled) { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4); }
+        .primary-btn { background: var(--accent); color: #fff; box-shadow: 0 4px 15px rgba(184, 150, 46, 0.25); }
+        .primary-btn:hover:not(:disabled) { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(184, 150, 46, 0.35); }
         
         .danger-btn { background: var(--danger); color: #fff; }
         .secondary-btn { background: var(--bg); border: 1px solid var(--border); color: var(--text); }
@@ -112,15 +113,16 @@
         #vault-search { margin-top: 0; flex-grow: 1; box-shadow: var(--shadow-sm); }
         
         .file-card { display: flex; align-items: center; padding: 1rem 1.2rem; justify-content: space-between; gap: 1rem; }
-        .folder-card { cursor: pointer; background: rgba(212, 175, 55, 0.05); border-color: rgba(212, 175, 55, 0.2); }
+        .folder-card { cursor: pointer; background: rgba(184, 150, 46, 0.04); border-color: rgba(184, 150, 46, 0.2); }
         .folder-card:hover { border-color: var(--accent); }
         .file-info { display: flex; align-items: center; gap: 1rem; overflow: hidden; flex: 1; }
-        .file-icon { font-size: 1.8rem; }
+        .file-icon { font-size: 1.8rem; display: flex; align-items: center; justify-content: center; }
         .file-name { font-weight: 500; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .file-actions { display: flex; gap: 0.5rem; }
         
-        .icon-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: var(--text); box-shadow: var(--shadow-sm); transition: all 0.2s; }
+        .icon-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: var(--text-muted); box-shadow: var(--shadow-sm); transition: all 0.2s; }
         .icon-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .icon-btn svg { width: 18px; height: 18px; }
         
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 1rem; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); opacity: 0; pointer-events: none; transition: opacity 0.3s; }
         .modal.active { opacity: 1; pointer-events: auto; }
@@ -136,15 +138,13 @@
         #preview-body img, #preview-body video { max-width: 100%; border-radius: 8px; box-shadow: var(--shadow-sm); background: var(--surface); }
         #preview-body pre { width: 100%; background: var(--surface); padding: 1.5rem; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; font-family: monospace; font-size: 0.85rem; border: 1px solid var(--border); color: var(--text); }
         
-        .vcf-card { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: left; }
-        .vcf-card h3 { color: var(--accent); margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
-        .vcf-card p { margin-bottom: 0.5rem; display: flex; gap: 10px; }
-        .vcf-card strong { width: 60px; color: var(--text-muted); }
-
-        .csv-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; background: var(--surface); }
-        .csv-table th { background: var(--bg); font-weight: 600; }
-        .csv-table th, .csv-table td { border: 1px solid var(--border); padding: 0.75rem; text-align: left; }
-        .modal-actions { display: flex; gap: 1rem; margin-top: 2rem; }
+        /* Searchable Data Cards for CSV & VCF */
+        .data-search-container { width: 100%; max-width: 600px; margin-bottom: 1.5rem; }
+        .data-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; width: 100%; }
+        .data-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; text-align: left; font-size: 0.9rem; box-shadow: var(--shadow-sm); }
+        .data-card h3 { color: var(--text); margin-bottom: 0.8rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; font-size: 1.05rem; }
+        .data-card p { margin-bottom: 0.4rem; color: var(--text); word-break: break-word;}
+        .data-card strong { color: var(--text-muted); display: inline-block; min-width: 60px; }
         
         .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-muted); grid-column: 1 / -1; }
     </style>
@@ -222,7 +222,10 @@
             </div>
             <div class="vault-toolbar">
                 <input type="text" id="vault-search" placeholder="Search decrypted files..." autocomplete="off">
-                <button id="toggle-layout-btn" class="icon-btn" title="Toggle Grid/List">🔲</button>
+                <button id="toggle-layout-btn" class="icon-btn" title="Toggle Grid/List">
+                    <svg id="icon-list" class="hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                    <svg id="icon-grid" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                </button>
             </div>
             <div id="vault-path" style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--accent); font-weight: 500; word-break: break-all;"></div>
             
@@ -268,7 +271,7 @@
         let sessionTimer = null;
         let views = {}; 
         
-        let currentFolder = ""; // Folder Navigation State
+        let currentFolder = ""; 
         let isListView = true;
 
         const getMimeType = (ext) => {
@@ -317,6 +320,10 @@
                 isListView = !isListView;
                 const container = document.getElementById('vault-contents');
                 isListView ? container.classList.add('list-view') : container.classList.remove('list-view');
+                
+                // Toggle SVG Icons
+                document.getElementById('icon-list').classList.toggle('hidden', isListView);
+                document.getElementById('icon-grid').classList.toggle('hidden', !isListView);
             });
             
             const warnModal = document.getElementById('warning-modal');
@@ -482,7 +489,6 @@
                 const entries = await zipReader.getEntries();
                 if (!entries.length) throw new Error("Archive is empty.");
 
-                // Test extraction to verify password
                 const testFile = entries.find(e => !e.directory);
                 if (testFile) await testFile.getData(new zip.Uint8ArrayWriter(), { length: 1 });
 
@@ -495,7 +501,7 @@
             } catch (e) {
                 btn.classList.remove('hidden');
                 progContainer.classList.add('hidden');
-                applyLockout(); // Start 30s penalty
+                applyLockout(); 
             }
         };
 
@@ -506,12 +512,12 @@
             let currentFile = 0;
 
             for (const entry of filesToExtract) {
-                const fullPath = entry.filename; // e.g., "folder/subfolder/file.jpg"
+                const fullPath = entry.filename; 
                 const safeName = fullPath.split('/').pop().replace(/[^a-zA-Z0-9.\-_ ()]/g, '');
                 if (!safeName) continue;
                 
                 const ext = safeName.split('.').pop().toLowerCase();
-                const mime = getMimeType(ext); // INJECT MIME TYPE
+                const mime = getMimeType(ext);
 
                 const blob = await entry.getData(new zip.BlobWriter(mime), {
                     onprogress: (index, max) => {
@@ -523,12 +529,12 @@
 
                 decryptedFiles.push({
                     fullPath: fullPath,
-                    pathDir: fullPath.substring(0, fullPath.lastIndexOf('/') + 1), // "folder/subfolder/"
+                    pathDir: fullPath.substring(0, fullPath.lastIndexOf('/') + 1),
                     name: safeName, 
                     ext: ext,
                     url: URL.createObjectURL(blob), 
                     rawBlob: blob,
-                    index: decryptedFiles.length // Keep original reference for previewing
+                    index: decryptedFiles.length 
                 });
                 currentFile++;
             }
@@ -537,7 +543,7 @@
             document.getElementById('vault-title-display').innerText = activeZip.title;
             document.getElementById('vault-stats').innerText = `${totalFiles} items securely decrypted`;
             
-            currentFolder = ""; // Reset to root
+            currentFolder = ""; 
             renderVaultUI();
             
             setTimeout(() => {
@@ -552,16 +558,13 @@
             return i[ext] || '📄';
         };
 
-        // Handles folder navigation and search filtering
         const renderVaultUI = (searchQuery = "") => {
             const container = document.getElementById('vault-contents');
             const pathDisplay = document.getElementById('vault-path');
             
             pathDisplay.innerText = currentFolder === "" ? "/ Root" : `/ ${currentFolder}`;
-            
             let html = "";
             
-            // If we are searching, flatten everything and ignore folders
             if (searchQuery) {
                 const results = decryptedFiles.filter(f => f.name.toLowerCase().includes(searchQuery));
                 if (results.length === 0) {
@@ -573,7 +576,6 @@
                 return;
             }
 
-            // Normal Folder View
             const folders = new Set();
             const filesInDir = [];
 
@@ -581,26 +583,30 @@
                 if (f.pathDir.startsWith(currentFolder)) {
                     const relativePath = f.pathDir.substring(currentFolder.length);
                     if (relativePath === "") {
-                        filesInDir.push(f); // File is exactly in this directory
+                        filesInDir.push(f);
                     } else {
-                        // Extract the next immediate folder name
                         const nextFolder = relativePath.split('/')[0];
                         folders.add(currentFolder + nextFolder + '/');
                     }
                 }
             });
 
-            // Level Up Button
             if (currentFolder !== "") {
                 const parentDir = currentFolder.split('/').slice(0, -2).join('/');
                 const target = parentDir === "" ? "" : parentDir + "/";
+                
+                // Professional Level Up SVG Icon
                 html += `
                     <div class="card file-card folder-card" onclick="app.navTo('${target}')">
-                        <div class="file-info"><span class="file-icon">⬆️</span><span class="file-name">.. (Level Up)</span></div>
+                        <div class="file-info">
+                            <span class="file-icon" style="color:var(--accent);">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/><path d="M12 10v6"/><path d="M9 13l3-3 3 3"/></svg>
+                            </span>
+                            <span class="file-name">Level Up</span>
+                        </div>
                     </div>`;
             }
 
-            // Render Subfolders
             Array.from(folders).sort().forEach(folderPath => {
                 const folderName = folderPath.split('/').slice(-2)[0];
                 html += `
@@ -610,7 +616,6 @@
                     </div>`;
             });
 
-            // Render Files
             filesInDir.sort((a, b) => a.ext.localeCompare(b.ext) || a.name.localeCompare(b.name)).forEach(f => {
                 html += generateFileHTML(f);
             });
@@ -631,6 +636,19 @@
                 </div>
             </div>`;
 
+        // Initialize Internal Data Search Engine
+        const initDataSearch = () => {
+            const input = document.getElementById('internal-data-search');
+            if (input) {
+                input.addEventListener('input', (e) => {
+                    const term = e.target.value.toLowerCase();
+                    document.querySelectorAll('.data-card').forEach(card => {
+                        card.style.display = card.innerText.toLowerCase().includes(term) ? 'block' : 'none';
+                    });
+                });
+            }
+        };
+
         const preview = async (globalIndex) => {
             const file = decryptedFiles[globalIndex];
             const body = document.getElementById('preview-body');
@@ -646,31 +664,64 @@
                 } else if (['mp3','wav'].includes(file.ext)) {
                     body.innerHTML = `<audio src="${file.url}" controls autoplay style="width:100%"></audio>`;
                 } else if (file.ext === 'pdf') {
-                    // Robust PDF embed approach for Blobs
-                    body.innerHTML = `<object data="${file.url}" type="application/pdf" width="100%" height="80vh" style="min-height: 500px; border-radius: 8px;">
-                        <iframe src="${file.url}" width="100%" height="100%" style="border:none;">
-                            <p style="padding:2rem;text-align:center;">Browser lacks PDF viewer. <a href="${file.url}" download="${file.name}">Download to view</a></p>
-                        </iframe>
-                    </object>`;
+                    // Safe PDF Fallback Component (Prevents mobile/CSP breaking)
+                    body.innerHTML = `
+                        <div style="text-align:center; padding: 3rem 1rem; width: 100%;">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--danger); margin-bottom:1rem;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                            <h3 style="margin-bottom:0.5rem; color: var(--text);">Secure PDF Document</h3>
+                            <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:2rem;">Browser security prevents previewing encrypted PDF blobs inline. Please save the file to view it natively.</p>
+                            <button class="primary-btn" onclick="app.save(${globalIndex})" style="max-width:250px; margin:0 auto;">Download & View PDF</button>
+                        </div>`;
                 } else if (file.ext === 'vcf') {
-                    // VCF Contact Card Parser
+                    // Searchable VCF Contact Cards
                     const text = await file.rawBlob.text();
-                    const cleanHtml = text.split('\n').map(line => {
-                        if (line.startsWith('FN:')) return `<h3>${line.substring(3)}</h3>`;
-                        if (line.startsWith('TEL')) return `<p><strong>Phone</strong> ${line.split(':')[1]}</p>`;
-                        if (line.startsWith('EMAIL')) return `<p><strong>Email</strong> <a href="mailto:${line.split(':')[1]}">${line.split(':')[1]}</a></p>`;
-                        return '';
+                    const vcards = text.split('BEGIN:VCARD').filter(v => v.trim());
+                    
+                    let cardsHtml = vcards.map(vcard => {
+                        const lines = vcard.split('\n');
+                        let name = 'Unknown Contact', details = '';
+                        lines.forEach(line => {
+                            if(line.startsWith('FN:')) name = line.substring(3).trim();
+                            else if(line.includes('TEL')) details += `<p><strong>Phone:</strong> <a href="tel:${line.split(':')[1]}" style="color:var(--accent); text-decoration:none;">${line.split(':')[1]}</a></p>`;
+                            else if(line.includes('EMAIL')) details += `<p><strong>Email:</strong> <a href="mailto:${line.split(':')[1]}" style="color:var(--accent); text-decoration:none;">${line.split(':')[1]}</a></p>`;
+                        });
+                        return `<div class="data-card"><h3>${name}</h3>${details}</div>`;
                     }).join('');
-                    body.innerHTML = `<div class="vcf-card">${cleanHtml || "<p>Raw VCF Data format not fully supported.</p><pre>"+text+"</pre>"}</div>`;
-                } else if (['txt','md','json','xml','csv'].includes(file.ext)) {
+                    
+                    body.innerHTML = `
+                        <div class="data-search-container">
+                            <input type="text" id="internal-data-search" placeholder="Search contacts..." autocomplete="off">
+                        </div>
+                        <div class="data-grid">${cardsHtml || "<p style='color:var(--text-muted)'>No readable contacts found.</p>"}</div>
+                    `;
+                    initDataSearch();
+                } else if (file.ext === 'csv') {
+                    // Searchable CSV Data Cards
+                    const text = await file.rawBlob.text();
+                    const rows = text.split('\n').filter(r => r.trim());
+                    if (rows.length > 0) {
+                        const headers = rows[0].split(',').map(h => h.trim());
+                        let cardsHtml = rows.slice(1).map(row => {
+                            const cols = row.split(',').map(c => c.trim());
+                            let content = '';
+                            headers.forEach((h, i) => { if(cols[i]) content += `<p><strong>${h}:</strong> ${cols[i]}</p>`; });
+                            return `<div class="data-card">${content}</div>`;
+                        }).join('');
+                        
+                        body.innerHTML = `
+                            <div class="data-search-container">
+                                <input type="text" id="internal-data-search" placeholder="Search records..." autocomplete="off">
+                            </div>
+                            <div class="data-grid">${cardsHtml}</div>
+                        `;
+                        initDataSearch();
+                    } else {
+                        body.innerHTML = `<p style="color:var(--text-muted)">CSV file is empty.</p>`;
+                    }
+                } else if (['txt','md','json','xml'].includes(file.ext)) {
                     const text = await file.rawBlob.text();
                     if (file.ext === 'json') { try { body.innerHTML = `<pre>${JSON.stringify(JSON.parse(text), null, 2)}</pre>`; } catch { body.innerHTML = `<pre>${text}</pre>`; } }
-                    else if (file.ext === 'csv') {
-                        body.innerHTML = '<div style="width:100%; overflow-x:auto;"><table class="csv-table">' + text.split('\n').map((row, i) => {
-                            if(!row.trim()) return '';
-                            return '<tr>' + row.split(',').map(c => i===0 ? `<th>${c.trim()}</th>` : `<td>${c.trim()}</td>`).join('') + '</tr>';
-                        }).join('') + '</table></div>';
-                    } else body.innerHTML = `<pre>${text}</pre>`;
+                    else body.innerHTML = `<pre>${text}</pre>`;
                 } else if (['db', 'sqlite'].includes(file.ext)) {
                     const view = new Uint8Array(await file.rawBlob.arrayBuffer());
                     let extract = "", curr = "";
